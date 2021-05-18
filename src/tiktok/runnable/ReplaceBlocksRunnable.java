@@ -1,5 +1,6 @@
 package tiktok.runnable;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -14,15 +15,18 @@ public class ReplaceBlocksRunnable extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		Main.replaceBlock(Bukkit.getWorld("world").getSpawnLocation().getBlock().getRelative(BlockFace.DOWN));
+		Main main = Main.getInstance();
+		main.replaceBlock(Bukkit.getWorld("world").getSpawnLocation().getBlock().getRelative(BlockFace.DOWN));
 		
-		if(Main.blockQueue.size() == 0)
-			return;
-		
-		Entry<Block, Material> block = Main.blockQueue.entrySet().iterator().next();
-		
-		block.getKey().setType(block.getValue());
-		Main.blockQueue.remove(block.getKey());
+		int cycle = 0;
+		for(Entry<Block, Material> block: new HashMap<>(main.blockQueue).entrySet()) {
+			if(++cycle > 5)
+				break;
+			
+			block.getKey().setType(block.getValue());
+			
+			main.blockQueue.remove(block.getKey());
+		}
 	}
 
 }

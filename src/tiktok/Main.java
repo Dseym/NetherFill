@@ -1,60 +1,68 @@
 package tiktok;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import tiktok.runnable.ForceUpdateRunnable;
+import lombok.Getter;
+import tiktok.cmd.SetVideoExecutor;
 import tiktok.runnable.ReplaceBlocksRunnable;
 import tiktok.runnable.UpdateVideoRunnable;
 
-public class Main extends JavaPlugin implements Listener {
-	public final static List<Material> NETHER_BLOCKS = Arrays.asList(Material.NETHERRACK, Material.CRIMSON_STEM, Material.NETHER_WART_BLOCK, Material.LAVA);
+public class Main extends JavaPlugin {
+	@Getter
+	private static Main instance;
+	public final static List<Material> NETHER_BLOCKS =
+			Arrays.asList(Material.NETHERRACK, Material.CRIMSON_STEM, Material.NETHER_WART_BLOCK, Material.LAVA,
+						  Material.OBSIDIAN);
+	public String url = "https://www.tiktok.com/@anth.n.y2/video/6962563252064652550";
 	
 	
-	public static HashMap<Block, Material> blockQueue = new HashMap<>();
-	public static long countActions = 0;
+	public HashMap<Block, Material> blockQueue = new HashMap<>();
+	public long countActions = 0;
 	
 	@Override
 	public void onEnable() {
 		new UpdateVideoRunnable().runTaskTimer(this, 200, 200);
 		new ReplaceBlocksRunnable().runTaskTimer(this, 200, 1);
-		new ForceUpdateRunnable().runTaskTimer(this, 100, 200);
 		
-		Bukkit.getPluginManager().registerEvents(this, this);
+		new SetVideoExecutor();
 		
+		instance = this;
 		getLogger().info("Enabled!");
 	}
 	
-	@EventHandler
-	public void tick(BlockPhysicsEvent e) {
-		if(NETHER_BLOCKS.contains(e.getSourceBlock().getType()))
-			replaceBlock(e.getBlock());
-		else if(NETHER_BLOCKS.contains(e.getBlock().getType()))
-			replaceBlock(e.getSourceBlock());
-	}
-
-	@EventHandler
-	public void tick(BlockPlaceEvent e) {
-		e.getBlockReplacedState().update();
+	public void forceUpdate() {
+		List<Chunk> chunks = Arrays.asList(Bukkit.getWorld("world").getLoadedChunks());
+		Collections.shuffle(chunks);
+		for(Chunk chunk: chunks) {
+			for(int x = 0; x < 16; x++)
+				for(int y = 21; y < 151; y++)
+					for(int z = 0; z < 16; z++) {
+						Block block = chunk.getBlock(x, y, z);
+						if(Main.NETHER_BLOCKS.contains(block.getType()) && countActions > 0) {
+							replaceBlock(block.getRelative(BlockFace.UP));
+							replaceBlock(block.getRelative(BlockFace.DOWN));
+							replaceBlock(block.getRelative(BlockFace.SOUTH));
+							replaceBlock(block.getRelative(BlockFace.EAST));
+							replaceBlock(block.getRelative(BlockFace.NORTH));
+							replaceBlock(block.getRelative(BlockFace.WEST));
+						}
+					}
+			
+			chunk.unload();
+		}
 	}
 	
-	@EventHandler
-	public void tick(BlockBreakEvent e) {
-		e.getBlock().getState().update();
-	}
-	
-	public static void replaceBlock(Block block) {
+	public void replaceBlock(Block block) {
 		if(countActions > 0 && !blockQueue.containsKey(block)) {
 			countActions--;
 			switch(block.getType()) {
@@ -74,7 +82,7 @@ public class Main extends JavaPlugin implements Listener {
 					blockQueue.put(block, Material.AIR);
 					return;
 					
-				case WATER:
+				case WATER: case OBSIDIAN:
 					blockQueue.put(block, Material.LAVA);
 					return;
 	

@@ -12,9 +12,8 @@ public class Video {
 	
 	public long shares, comments;
 	
-	public Video(String authorId, String videoId) {
+	public Video(String url) {
         try {
-        	String url = "https://www.tiktok.com/@%authorId%/video/%videoId%".replace("%authorId%", authorId).replace("%videoId%", videoId);
             Element script = Jsoup.connect(url).userAgent("Chrome").get().getElementById("__NEXT_DATA__");
             String scriptData = script.data();
             

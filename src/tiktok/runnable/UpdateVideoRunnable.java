@@ -9,6 +9,7 @@ import tiktok.tiktok.Video;
 public class UpdateVideoRunnable extends BukkitRunnable {
 	
 	private Video lastVideo;
+	private String lastUrl = "";
 	
 	@Override
 	public void run() {
@@ -16,13 +17,29 @@ public class UpdateVideoRunnable extends BukkitRunnable {
 			
 			@Override
 			public void run() {
-				Video video = new Video("anth.n.y2", "6962563252064652550");
+				Main main = Main.getInstance();
+				Video video = new Video(Main.getInstance().url);
+				if(!lastUrl.equals(Main.getInstance().url))
+					lastVideo = null;
+				
 				if(lastVideo != null && video != null) {
-					Main.countActions += (video.comments-lastVideo.comments) + (video.shares-lastVideo.shares);
-					Chat.NO_PREFIX.sendAll("&6» &7Video stats updated. Now actions - " + Main.countActions);
+					main.countActions += (video.comments-lastVideo.comments) + (video.shares-lastVideo.shares);
+					if(main.countActions < 0)
+						main.countActions = 0;
+					
+					Chat.NO_PREFIX.sendAll("&6» &7Video stats updated. Now actions - " + main.countActions);
 				}
 				
 				lastVideo = video;
+				lastUrl = Main.getInstance().url;
+				
+				new BukkitRunnable() {
+					
+					@Override
+					public void run() {
+						main.forceUpdate();
+					}
+				}.runTask(main);
 			}
 			
 		}).start();
