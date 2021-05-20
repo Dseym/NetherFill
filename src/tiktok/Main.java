@@ -23,15 +23,19 @@ public class Main extends JavaPlugin {
 	public final static List<Material> NETHER_BLOCKS =
 			Arrays.asList(Material.NETHERRACK, Material.CRIMSON_STEM, Material.NETHER_WART_BLOCK, Material.LAVA,
 						  Material.OBSIDIAN);
-	public String url = "https://www.tiktok.com/@anth.n.y2/video/6962563252064652550";
 	
 	
 	public HashMap<Block, Material> blockQueue = new HashMap<>();
 	public long countActions = 0;
+	public UpdateVideoRunnable updateVideo;
 	
 	@Override
 	public void onEnable() {
-		new UpdateVideoRunnable().runTaskTimer(this, 200, 200);
+		updateVideo = new UpdateVideoRunnable();
+		updateVideo.runTaskTimer(this, 200, 200);
+		try {
+			updateVideo.changeVideo("https://www.tiktok.com/@anth.n.y2/video/6962563252064652550");
+		} catch (Exception e) {}
 		new ReplaceBlocksRunnable().runTaskTimer(this, 200, 1);
 		
 		new SetVideoExecutor();
@@ -45,7 +49,7 @@ public class Main extends JavaPlugin {
 		Collections.shuffle(chunks);
 		for(Chunk chunk: chunks) {
 			for(int x = 0; x < 16; x++)
-				for(int y = 21; y < 151; y++)
+				for(int y = 150; y > 20; y--)
 					for(int z = 0; z < 16; z++) {
 						Block block = chunk.getBlock(x, y, z);
 						if(Main.NETHER_BLOCKS.contains(block.getType()) && countActions > 0) {

@@ -1,8 +1,0 @@
-name: TikTok-1
-version: 1.0
-api-version: 1.13
-main: tiktok.Main
-commands:
-  setvideo:
-    description: Set url video form tiktok
-    

@@ -20,8 +20,13 @@ public class SetVideoExecutor extends Executor {
 			return true;
 		}
 		
-		Main.getInstance().url = url;
-		Chat.SUCCESS.send(sender, "Success");
+		try {
+			Main.getInstance().updateVideo.changeVideo(url);
+			Chat.SUCCESS.send(sender, "Success");
+		} catch (Exception e) {
+			e.printStackTrace();
+			Chat.FAIL.send(sender, "Enter the correct link.", "Example:&l https://www.tiktok.com/@anth.n.y2/video/6962563252064652550");
+		}
 		
 		return true;
 	}

@@ -3,10 +3,8 @@ package tiktok.runnable;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import tiktok.Main;
@@ -16,7 +14,6 @@ public class ReplaceBlocksRunnable extends BukkitRunnable {
 	@Override
 	public void run() {
 		Main main = Main.getInstance();
-		main.replaceBlock(Bukkit.getWorld("world").getSpawnLocation().getBlock().getRelative(BlockFace.DOWN));
 		
 		int cycle = 0;
 		for(Entry<Block, Material> block: new HashMap<>(main.blockQueue).entrySet()) {
